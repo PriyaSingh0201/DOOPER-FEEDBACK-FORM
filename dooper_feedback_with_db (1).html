@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dooper — Feedback System</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --teal: #0a9e7c;
+      --teal-light: #e6f7f3;
+      --teal-dark: #07705a;
+      --teal-mid: #12b589;
+      --bg: #f0f4f3;
+      --white: #ffffff;
+      --text: #1a1f1e;
+      --muted: #6b7775;
+      --border: #dde3e1;
+      --red: #e84545;
+      --yellow: #f5a623;
+      --radius: 14px;
+      --shadow: 0 4px 40px rgba(172, 52, 52, 0.09);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--teal);
+      margin-right: 32px;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-logo::after {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--teal);
+      border-radius: 50%;
+    }
+
+    .nav-tab {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+    }
+
+    .nav-tab.active {
+      color: var(--teal);
+      border-bottom-color: var(--teal);
+    }
+
+    .nav-badge {
+      background: var(--teal);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-left: 6px;
+      line-height: 1.4;
+    }
+
+    /* ── PAGES ── */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ─────── FORM PAGE ─────── */
+    .form-page {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px 60px;
+      min-height: calc(100vh - 56px);
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 500px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-header {
+      background: var(--teal);
+      padding: 28px 32px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      right: 50px;
+      bottom: -50px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .card-logo {
+      font-family: 'DM Serif Display', serif;
+      color: #fff;
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .card-header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 13.5px;
+      font-weight: 300;
+    }
+
+    .card-body {
+      padding: 28px 32px 32px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    label .req {
+      color: var(--red);
+      margin-left: 2px;
+    }
+
+    label .opt {
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(10, 158, 124, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7775' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    /* Stars */
+    .star-wrap {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 4px;
+      width: fit-content;
+    }
+
+    .star-wrap input {
+      display: none;
+    }
+
+    .star-wrap label {
+      font-size: 30px;
+      color: #dce2e0;
+      cursor: pointer;
+      transition: color 0.12s, transform 0.12s;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .star-wrap label:hover,
+    .star-wrap label:hover~label,
+    .star-wrap input:checked~label {
+      color: var(--yellow);
+    }
+
+    .star-wrap label:hover {
+      transform: scale(1.15);
+    }
+
+    /* File upload */
+    .file-area {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .file-area:hover {
+      border-color: var(--teal);
+      background: var(--teal-light);
+    }
+
+    .file-area input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .file-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .file-text strong {
+      color: var(--teal);
+    }
+
+    .file-name {
+      font-size: 12px;
+      color: var(--teal);
+      margin-top: 6px;
+      display: none;
+      font-weight: 500;
+    }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, opacity 0.2s;
+      margin-top: 6px;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .submit-btn:hover {
+      background: var(--teal-dark);
+    }
+
+    .submit-btn:active {
+      transform: scale(0.99);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Success */
+    .success-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 32px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--teal-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 18px;
+    }
+
+    .success-screen h3 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .success-screen p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .btn-outline {
+      margin-top: 20px;
+      padding: 10px 24px;
+      border: 1.5px solid var(--teal);
+      color: var(--teal);
+      background: transparent;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    /* Errors */
+    .error-msg {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* ─────── ADMIN PAGE ─────── */
+    .admin-page {
+      padding: 32px 24px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .admin-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .admin-topbar h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .admin-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 8px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7775' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    .clear-btn {
+      padding: 8px 16px;
+      border: 1.5px solid #fcc;
+      border-radius: 10px;
+      background: #fff0f0;
+      color: var(--red);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .clear-btn:hover {
+      background: #ffe0e0;
+    }
+
+    /* Stats bar */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Entries */
+    .entries-wrap {
+      background: var(--white);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .entries-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .entries-header span {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .entry-item {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+      animation: slideIn 0.3s ease both;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+
+    .entry-item:hover {
+      background: #fafcfb;
+    }
+
+    .entry-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .entry-person {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--teal-light);
+      color: var(--teal-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .entry-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .entry-email {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .entry-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .stars-display {
+      color: var(--yellow);
+      font-size: 15px;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .stars-display .dim {
+      color: #dce2e0;
+    }
+
+    .entry-time {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .entry-bottom {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--teal-light);
+      color: var(--teal-dark);
+      flex-shrink: 0;
+    }
+
+    .entry-msg {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    /* Search bar */
+    .search-bar {
+      padding: 0 20px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--teal);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 34px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 15px;
+      pointer-events: none;
+    }
+
+    /* Download btn */
+    .download-btn {
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--white);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .download-btn:hover {
+      background: var(--bg);
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1f1e;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+      z-index: 999;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .admin-page {
+        padding: 20px 12px 50px;
+      }
+
+      .card-body {
+        padding: 20px 20px 24px;
+      }
+
+      .card-header {
+        padding: 22px 20px 18px;
+      }
+
+      nav {
+        padding: 0 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Dooper</div>
+    <div class="nav-tab active" id="tab-form" onclick="showPage('form')">Feedback Form</div>
+    <div class="nav-tab" id="tab-admin" onclick="showPage('admin')">
+      Admin Dashboard
+      <span class="nav-badge" id="nav-badge">0</span>
+    </div>
+  </nav>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <!-- ── FORM PAGE ── -->
+  <div class="page active" id="page-form">
+    <div class="form-page">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-logo">Dooper</div>
+          <p>Help us improve your healthcare experience</p>
+        </div>
+
+        <div class="card-body" id="form-body">
+          <form id="feedbackForm" novalidate>
+
+            <div class="field">
+              <label>Full name <span class="req">*</span></label>
+              <input type="text" id="name" placeholder="e.g. Rahul Sharma" autocomplete="name">
+              <div class="error-msg" id="name-err">Please enter your name.</div>
+            </div>
+
+            <div class="field">
+              <label>Email address <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="rahul@example.com" autocomplete="email">
+              <div class="error-msg" id="email-err">Please enter a valid email address.</div>
+            </div>
+
+            <div class="field">
+              <label>Your rating <span class="req">*</span></label>
+              <div class="star-wrap" id="star-wrap">
+                <input type="radio" name="rating" id="s5" value="5"><label for="s5" title="Excellent">★</label>
+                <input type="radio" name="rating" id="s4" value="4"><label for="s4" title="Good">★</label>
+                <input type="radio" name="rating" id="s3" value="3"><label for="s3" title="Average">★</label>
+                <input type="radio" name="rating" id="s2" value="2"><label for="s2" title="Poor">★</label>
+                <input type="radio" name="rating" id="s1" value="1"><label for="s1" title="Terrible">★</label>
+              </div>
+              <div class="error-msg" id="rating-err">Please select a rating.</div>
+            </div>
+
+            <div class="field">
+              <label>Category <span class="req">*</span></label>
+              <select id="category">
+                <option value="">Select a category...</option>
+                <option value="Doctor Quality">Doctor Quality</option>
+                <option value="App / Website Issue">App / Website Issue</option>
+                <option value="UI Bug">UI Bug</option>
+                <option value="Nursing Care">Nursing Care</option>
+                <option value="Lab Test">Lab Test</option>
+                <option value="Other">Other</option>
+              </select>
+              <div class="error-msg" id="cat-err">Please select a category.</div>
+            </div>
+
+            <div class="field">
+              <label>Message <span class="req">*</span></label>
+              <textarea id="message" placeholder="Tell us about your experience..."></textarea>
+              <div class="error-msg" id="msg-err">Message must be at least 10 characters.</div>
+            </div>
+
+            <div class="field">
+              <label>Attachment <span class="opt">(optional)</span></label>
+              <div class="file-area" id="file-area">
+                <input type="file" id="file" accept="image/*,.pdf" onchange="showFile(this)">
+                <div class="file-icon">📎</div>
+                <div class="file-text"><strong>Click to upload</strong> or drag & drop</div>
+                <div class="file-text" style="margin-top:3px">PNG, JPG, PDF — max 5 MB</div>
+                <div class="file-name" id="file-name"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+              <span id="btn-text">Submit Feedback</span>
+            </button>
+          </form>
+        </div>
+
+        <div class="success-screen" id="success-screen">
+          <div class="success-icon">✅</div>
+          <h3>Thank you!</h3>
+          <p>Your feedback has been submitted.<br>Our team will review it shortly.</p>
+          <button class="btn-outline" onclick="resetForm()">Submit another response</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADMIN PAGE ── -->
+  <div class="page" id="page-admin">
+    <div class="admin-page">
+
+      <div class="admin-topbar">
+        <h1>Feedback Dashboard</h1>
+        <div class="admin-controls">
+          <select class="filter-select" id="filter-cat" onchange="renderAdmin()">
+            <option value="">All categories</option>
+            <option value="Doctor Quality">Doctor Quality</option>
+            <option value="App / Website Issue">App / Website Issue</option>
+            <option value="UI Bug">UI Bug</option>
+            <option value="Nursing Care">Nursing Care</option>
+            <option value="Lab Test">Lab Test</option>
+            <option value="Other">Other</option>
+          </select>
+          <select class="filter-select" id="filter-rating" onchange="renderAdmin()">
+            <option value="">All ratings</option>
+            <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+            <option value="4">⭐⭐⭐⭐ (4)</option>
+            <option value="3">⭐⭐⭐ (3)</option>
+            <option value="2">⭐⭐ (2)</option>
+            <option value="1">⭐ (1)</option>
+          </select>
+          <button class="download-btn" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="clear-btn" onclick="clearAll()">🗑 Clear All</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row">
+        <!-- filled by JS -->
+      </div>
+
+      <!-- Search + Table -->
+      <div class="entries-wrap">
+        <div class="entries-header">
+          <span id="entries-label">All entries</span>
+          <div class="search-bar" style="margin:0;padding:0;position:relative;width:220px">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Search…" oninput="renderAdmin()"
+              style="padding-left:32px">
+          </div>
+        </div>
+        <div id="entries-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ─── DATABASE (window.storage with localStorage fallback) ─── */
+    const DB_KEY = 'dooper_feedback_v2';
+
+    const useWindowStorage = (typeof window !== 'undefined' && window.storage != null);
+
+    let _cache = null;
+
+    async function dbLoad() {
+      if (_cache !== null) return _cache;
+      try {
+        if (useWindowStorage) {
+          const result = await window.storage.get(DB_KEY);
+          _cache = result ? JSON.parse(result.value) : [];
+        } else {
+          const raw = localStorage.getItem(DB_KEY);
+          _cache = raw ? JSON.parse(raw) : [];
+        }
+      } catch { _cache = []; }
+      return _cache;
+    }
+
+    async function dbSave(entries) {
+      _cache = entries;
+      try {
+        if (useWindowStorage) {
+          await window.storage.set(DB_KEY, JSON.stringify(entries));
+        } else {
+          localStorage.setItem(DB_KEY, JSON.stringify(entries));
+        }
+      } catch (e) { console.error('Storage save failed:', e); }
+    }
+
+    async function dbAdd(entry) {
+      const entries = await dbLoad();
+      entry.id = Date.now();
+      entry.createdAt = new Date().toISOString();
+      entries.push(entry);
+      await dbSave(entries);
+      return entry;
+    }
+
+    async function dbClear() {
+      _cache = [];
+      try {
+        if (useWindowStorage) { await window.storage.delete(DB_KEY); }
+        else { localStorage.removeItem(DB_KEY); }
+      } catch { }
+    }
+
+    /* ─── HELPERS ─── */
+    function initials(name) {
+      return name.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() || '').join('');
+    }
+
+    function starsHtml(n) {
+      return '★'.repeat(n) + '<span class="dim">★'.repeat(5 - n) + '</span>';
+    }
+
+    function fmtDate(iso) {
+      return new Date(iso).toLocaleString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2600);
+    }
+
+    async function updateBadge() {
+      const entries = await dbLoad();
+      document.getElementById('nav-badge').textContent = entries.length;
+    }
+
+    /* ─── PAGE SWITCHING ─── */
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'admin') renderAdmin();  // async, fire-and-forget is fine here
+    }
+
+    /* ─── FORM LOGIC ─── */
+    function showFile(input) {
+      const name = input.files[0]?.name;
+      const el = document.getElementById('file-name');
+      if (name) { el.style.display = 'block'; el.textContent = '📄 ' + name; }
+      else { el.style.display = 'none'; }
+    }
+
+    function resetForm() {
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('message').value = '';
+      document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
+      document.getElementById('file-name').style.display = 'none';
+      document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+      document.getElementById('form-body').style.display = 'block';
+      document.getElementById('success-screen').style.display = 'none';
+    }
+
+    document.getElementById('feedbackForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const nameVal = document.getElementById('name').value.trim();
+      const emailVal = document.getElementById('email').value.trim();
+      const ratingEl = document.querySelector('input[name="rating"]:checked');
+      const categoryVal = document.getElementById('category').value;
+      const msgVal = document.getElementById('message').value.trim();
+
+      // Reset error styles
+      document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+      ['name', 'email', 'category', 'message'].forEach(id => {
+        document.getElementById(id).style.borderColor = '';
+      });
+
+      let valid = true;
+
+      if (!nameVal) {
+        document.getElementById('name-err').style.display = 'block';
+        document.getElementById('name').style.borderColor = '#e84545';
+        valid = false;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+        document.getElementById('email-err').style.display = 'block';
+        document.getElementById('email').style.borderColor = '#e84545';
+        valid = false;
+      }
+
+      if (!ratingEl) {
+        document.getElementById('rating-err').style.display = 'block';
+        valid = false;
+      }
+
+      if (!categoryVal) {
+        document.getElementById('cat-err').style.display = 'block';
+        document.getElementById('category').style.borderColor = '#e84545';
+        valid = false;
+      }
+
+      if (msgVal.length < 10) {
+        document.getElementById('msg-err').style.display = 'block';
+        document.getElementById('message').style.borderColor = '#e84545';
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // Saving animation
+      const btn = document.getElementById('submit-btn');
+      const btnText = document.getElementById('btn-text');
+      btn.disabled = true;
+      btnText.innerHTML = '';
+      const spinner = document.createElement('div');
+      spinner.className = 'spinner';
+      btn.appendChild(spinner);
+
+      await new Promise(r => setTimeout(r, 600)); // brief save feel
+
+      await dbAdd({
+        name: nameVal,
+        email: emailVal,
+        rating: parseInt(ratingEl.value),
+        category: categoryVal,
+        message: msgVal
+      });
+
+      updateBadge();
+
+      btn.disabled = false;
+      btn.removeChild(spinner);
+      btnText.textContent = 'Submit Feedback';
+
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'flex';
+    });
+
+    /* ─── ADMIN RENDER ─── */
+    async function renderAdmin() {
+      const all = await dbLoad();
+      const catFilter = document.getElementById('filter-cat').value;
+      const ratingFilter = document.getElementById('filter-rating').value;
+      const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+
+      let filtered = [...all].reverse();
+
+      if (catFilter) filtered = filtered.filter(e => e.category === catFilter);
+      if (ratingFilter) filtered = filtered.filter(e => e.rating === parseInt(ratingFilter));
+      if (searchQuery) filtered = filtered.filter(e =>
+        e.name.toLowerCase().includes(searchQuery) ||
+        e.email.toLowerCase().includes(searchQuery) ||
+        e.message.toLowerCase().includes(searchQuery) ||
+        e.category.toLowerCase().includes(searchQuery)
+      );
+
+      /* Stats */
+      const avg = all.length ? (all.reduce((s, e) => s + e.rating, 0) / all.length).toFixed(1) : '—';
+      const catCounts = {};
+      all.forEach(e => { catCounts[e.category] = (catCounts[e.category] || 0) + 1; });
+      const topCat = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a])[0] || '—';
+
+      document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Total Submissions</div>
+      <div class="stat-value">${all.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Rating</div>
+      <div class="stat-value">${avg}</div>
+      <div class="stat-sub">${avg !== '—' ? '★'.repeat(Math.round(avg)) : ''}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Top Category</div>
+      <div class="stat-value" style="font-size:16px;margin-top:4px">${topCat}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">5-Star Reviews</div>
+      <div class="stat-value">${all.filter(e => e.rating === 5).length}</div>
+    </div>
+  `;
+
+      /* Entries label */
+      document.getElementById('entries-label').textContent =
+        `${filtered.length} of ${all.length} entr${all.length === 1 ? 'y' : 'ies'}`;
+
+      const list = document.getElementById('entries-list');
+
+      if (!filtered.length) {
+        list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>${all.length === 0
+            ? 'No submissions yet. Submit a feedback to see it here.'
+            : 'No results match your filter.'}</p>
+      </div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(e => `
+    <div class="entry-item">
+      <div class="entry-top">
+        <div class="entry-person">
+          <div class="avatar">${initials(e.name)}</div>
+          <div>
+            <div class="entry-name">${escHtml(e.name)}</div>
+            <div class="entry-email">${escHtml(e.email)}</div>
+          </div>
+        </div>
+        <div class="entry-meta">
+          <div class="stars-display">${starsHtml(e.rating)}</div>
+          <div class="entry-time">${fmtDate(e.createdAt)}</div>
+        </div>
+      </div>
+      <div class="entry-bottom">
+        <span class="cat-pill">🏷 ${escHtml(e.category)}</span>
+        <div class="entry-msg">${escHtml(e.message)}</div>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function escHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ─── EXPORT CSV ─── */
+    async function exportCSV() {
+      const entries = await dbLoad();
+      if (!entries.length) { toast('No data to export.'); return; }
+
+      const header = ['ID', 'Name', 'Email', 'Rating', 'Category', 'Message', 'Date'];
+      const rows = entries.map(e => [
+        e.id,
+        `"${e.name.replace(/"/g, '""')}"`,
+        `"${e.email}"`,
+        e.rating,
+        `"${e.category}"`,
+        `"${e.message.replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+        `"${fmtDate(e.createdAt)}"`
+      ].join(','));
+
+      const csv = [header.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dooper_feedback_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('CSV exported successfully!');
+    }
+
+    /* ─── CLEAR ALL ─── */
+    async function clearAll() {
+      const entries = await dbLoad();
+      if (!entries.length) { toast('No data to clear.'); return; }
+      if (!confirm('Are you sure you want to delete ALL feedback entries? This cannot be undone.')) return;
+      await dbClear();
+      await updateBadge();
+      await renderAdmin();
+      toast('All entries cleared.');
+    }
+
+    /* ─── INIT ─── */
+    updateBadge();
+  </script>
+</body>
+
+</html>
